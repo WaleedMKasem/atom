@@ -19,3 +19,4 @@ spec/fixtures/evil-files/
 out/
 /electron/
 .history/
+yarn-error.log
