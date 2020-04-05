@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+/* eslint-disable prettier/prettier */
+#!/usr/bin / env node
 
 'use strict'
 
@@ -63,9 +64,9 @@ if (process.platform === 'darwin') {
   throw new Error('Running tests on this platform is not supported.')
 }
 
-function prepareEnv (suiteName) {
+function prepareEnv(suiteName) {
   const atomHomeDirPath = temp.mkdirSync(suiteName)
-  const env = Object.assign({}, process.env, {ATOM_HOME: atomHomeDirPath})
+  const env = Object.assign({}, process.env, { ATOM_HOME: atomHomeDirPath })
 
   if (process.env.TEST_JUNIT_XML_ROOT) {
     // Tell Jasmine to output this suite's results as a JUnit XML file to a subdirectory of the root, so that a
@@ -78,26 +79,26 @@ function prepareEnv (suiteName) {
   return env
 }
 
-function runCoreMainProcessTests (callback) {
+function runCoreMainProcessTests(callback) {
   const testPath = path.join(CONFIG.repositoryRootPath, 'spec', 'main-process')
   const testArguments = [
     '--resource-path', resourcePath,
     '--test', '--main-process', testPath
   ]
 
-  if(process.env.CI && process.platform === 'linux') {
-      testArguments.push('--no-sandbox')
+  if (process.env.CI && process.platform === 'linux') {
+    testArguments.push('--no-sandbox')
   }
 
-  const testEnv = Object.assign({}, prepareEnv('core-main-process'), {ATOM_GITHUB_INLINE_GIT_EXEC: 'true'})
+  const testEnv = Object.assign({}, prepareEnv('core-main-process'), { ATOM_GITHUB_INLINE_GIT_EXEC: 'true' })
 
   console.log('Executing core main process tests'.bold.green)
-  const cp = childProcess.spawn(executablePath, testArguments, {stdio: 'inherit', env: testEnv})
+  const cp = childProcess.spawn(executablePath, testArguments, { stdio: 'inherit', env: testEnv })
   cp.on('error', error => { callback(error) })
-  cp.on('close', exitCode => { callback(null, {exitCode, step: 'core-main-process'}) })
+  cp.on('close', exitCode => { callback(null, { exitCode, step: 'core-main-process' }) })
 }
 
-function runCoreRenderProcessTests (callback) {
+function runCoreRenderProcessTests(callback) {
   const testPath = path.join(CONFIG.repositoryRootPath, 'spec')
   const testArguments = [
     '--resource-path', resourcePath,
@@ -106,9 +107,9 @@ function runCoreRenderProcessTests (callback) {
   const testEnv = prepareEnv('core-render-process')
 
   console.log('Executing core render process tests'.bold.green)
-  const cp = childProcess.spawn(executablePath, testArguments, {stdio: 'inherit', env: testEnv})
+  const cp = childProcess.spawn(executablePath, testArguments, { stdio: 'inherit', env: testEnv })
   cp.on('error', error => { callback(error) })
-  cp.on('close', exitCode => { callback(null, {exitCode, step: 'core-render-process'}) })
+  cp.on('close', exitCode => { callback(null, { exitCode, step: 'core-render-process' }) })
 }
 
 // Build an array of functions, each running tests for a different bundled package
@@ -152,7 +153,7 @@ for (let packageName in CONFIG.appMetadata.packageDependencies) {
     } else {
       console.log(`Executing ${packageName} tests`.bold.green)
     }
-    const cp = childProcess.spawn(executablePath, testArguments, {env: testEnv})
+    const cp = childProcess.spawn(executablePath, testArguments, { env: testEnv })
 
     let stderrOutput = ''
     cp.stderr.on('data', data => { stderrOutput += data })
@@ -168,25 +169,25 @@ for (let packageName in CONFIG.appMetadata.packageDependencies) {
         console.log(stderrOutput)
       }
       finalize()
-      callback(null, {exitCode, step: `package-${packageName}`})
+      callback(null, { exitCode, step: `package-${packageName}` })
     })
   })
 }
 
-function runBenchmarkTests (callback) {
+function runBenchmarkTests(callback) {
   const benchmarksPath = path.join(CONFIG.repositoryRootPath, 'benchmarks')
   const testArguments = ['--benchmark-test', benchmarksPath]
   const testEnv = prepareEnv('benchmark')
 
   console.log('Executing benchmark tests'.bold.green)
-  const cp = childProcess.spawn(executablePath, testArguments, {stdio: 'inherit', env: testEnv})
+  const cp = childProcess.spawn(executablePath, testArguments, { stdio: 'inherit', env: testEnv })
   cp.on('error', error => { callback(error) })
-  cp.on('close', exitCode => { callback(null, {exitCode, step: 'core-benchmarks'}) })
+  cp.on('close', exitCode => { callback(null, { exitCode, step: 'core-benchmarks' }) })
 }
 
 let testSuitesToRun = requestedTestSuites() || testSuitesForPlatform(process.platform)
 
-function requestedTestSuites () {
+function requestedTestSuites() {
   const suites = []
   if (argv.coreMain) {
     suites.push(runCoreMainProcessTests)
@@ -203,7 +204,7 @@ function requestedTestSuites () {
   return suites.length > 0 ? suites : null
 }
 
-function testSuitesForPlatform (platform) {
+function testSuitesForPlatform(platform) {
   let suites = []
   switch (platform) {
     case 'darwin':
@@ -241,9 +242,9 @@ async.series(testSuitesToRun, function (err, results) {
     console.error(err)
     process.exit(1)
   } else {
-    const failedSteps = results.filter(({exitCode}) => exitCode !== 0)
+    const failedSteps = results.filter(({ exitCode }) => exitCode !== 0)
 
-    for (const {step} of failedSteps) {
+    for (const { step } of failedSteps) {
       console.error(`Error! The '${step}' test step finished with a non-zero exit code`)
     }
 
